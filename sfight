@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+developers = ARGV.select {|arg| !arg.empty? && !arg.nil?}
+raise "You need at least two developers to fight" if developers.empty?
+
+log = `svn log`
+separator = log.scan(/^-.*?-$/).first
+log_entries = log.split(separator)[1..-2]
+names = log_entries.collect {|entry| entry.split(" | ")[1]}
+
+numbers = developers.collect {|developer| names.select {|entry| entry == developer}.size}
+
+results = []
+developers.each_with_index {|developer, i| results << "#{numbers[i]} - #{developer}"}
+
+puts results.sort {|x, y| y.scan(/\d+/).first.to_i <=> x.scan(/\d+/).first.to_i}

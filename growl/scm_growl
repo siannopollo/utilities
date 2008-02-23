@@ -1,0 +1,4 @@
+#!/bin/sh
+
+source ~/.profile
+alias | grep cd$@= | awk "{gsub(/cd$@='cd |'/, \"\"); print}" | awk "{gsub(/~/, \"/Users/`whoami`\"); print}" | xargs ~/bin/growl/scm_growl.rb
