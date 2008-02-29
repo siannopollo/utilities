@@ -1,17 +1,20 @@
 #!/usr/bin/env ruby
-require "date"
+require File.dirname(__FILE__) + "/_printlog/printlog"
 limit = ARGV[0] || 15
 developer = ARGV[1]
 
-log = `svn log --limit #{limit}`
-separator = log.scan(/^-.*?-$/).first
-log_entries = log.split(separator)[1..-2]
-output = log_entries.collect do |entry|
-  pieces = entry.split(" | ")
-  name, message, date = pieces[1], pieces.last.split("\n\n").last, Date.parse(pieces[2].gsub(/\(.*?\)/, ""))
-  
-  next unless name == developer || developer.nil?
-  "* #{"#{name} "if developer.nil?}[#{date.to_s}] - #{message}"
-end.compact
+printer = Printlog.new(`pwd`, limit, developer)
+puts printer.report
 
-puts output
+# log = `svn log --limit #{limit}`
+# separator = log.scan(/^-.*?-$/).first
+# log_entries = log.split(separator)[1..-2]
+# output = log_entries.collect do |entry|
+#   pieces = entry.split(" | ")
+#   name, message, date = pieces[1], pieces.last.split("\n\n").last, Date.parse(pieces[2].gsub(/\(.*?\)/, ""))
+#   
+#   next unless name == developer || developer.nil?
+#   "* #{"#{name} "if developer.nil?}[#{date.to_s}] - #{message}"
+# end.compact
+# 
+# puts output
