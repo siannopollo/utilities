@@ -1,6 +1,10 @@
 require "date"
+require "time"
+
 class Printlog
-  attr_reader :directory, :limit, :developer, :formatter, :report, :dates
+  DEFAULTS = {:limit => 15, :developer => nil, :dates => nil, :format => "plain"}
+  attr_reader :directory, :limit, :developer, :formatter, :report, :dates, :format
+  
   def initialize(directory, options={})
     @directory = directory.gsub("\n", "")
     parse_options(options)
@@ -8,11 +12,7 @@ class Printlog
   end
   
   def parse_options(options)
-    defaults.update(options).each {|k, v| instance_variable_set(:"@#{k}", v)}
-  end
-  
-  def defaults
-    {:limit => 15, :developer => nil, :dates => nil, :format => "plain"}
+    DEFAULTS.update(options).each {|k, v| instance_variable_set(:"@#{k}", v)}
   end
   
   def scm
@@ -20,7 +20,7 @@ class Printlog
   end
   
   def report
-    formatter.report
+    formatter.report(format)
   end
   
   def real_dates
@@ -43,11 +43,37 @@ class Printlog
     end
     
     def formatted_log_entries
-      if printer.dates.nil?
-        log_entries
-      else
+      dated_entries = printer.dates.nil? ? log_entries :
         log_entries.select {|entry| printer.start_date <= entry.date && entry.date <= printer.end_date}
+      
+      developer_entries = printer.developer.nil? ? log_entries :
+        log_entries.select {|entry| entry.developer =~ /#{printer.developer}/}
+      
+      dated_entries & developer_entries
+    end
+    
+    def report(format)
+      if format == "plain"
+        formatted_log_entries.collect {|entry| entry.report}.compact
+      else
+        invoice_report(formatted_log_entries)
       end
+    end
+    
+    def invoice_report(entries)
+      raise "To create an invoice, you must provide a developer" if printer.developer.nil?
+      
+      output, dates = "", entries.collect {|e| e.report.scan(/\[(.*?)\]/).last}.flatten.uniq
+      dates.each do |date|
+        output << "#{Time.parse(date).strftime("%m/%d/%Y")} - ?? hours\n"
+        dated_entries = entries.select {|e| e.date.to_s == date}
+        dated_entries.each do |entry|
+          content = "  #{entry.report(false)}"
+          output << (content =~ /\n$/ ? content : "#{content}\n")
+        end
+        output << "\n"
+      end
+      output
     end
   end
   
@@ -63,33 +89,19 @@ class Printlog
     def log_entries
       @log_entries ||= log.split(separator)[1..-2].collect {|entry| SVNLogEntry.new(entry, printer)}
     end
-    
-    def report
-      formatted_log_entries.collect do |entry|
-        next unless entry.developer == printer.developer || printer.developer.nil?
-        entry.report
-      end.compact
-    end
   end
   
   class GITFormatter < Formatter
     def log
-      @log ||= `cd #{printer.directory} && git log -n#{printer.limit}`
+      @log ||= `cd #{printer.directory} && git log -n#{printer.limit} | cat`
     end
     
     def separator
-      @separator ||= "commit "
+      @separator ||= "?????"
     end
     
     def log_entries
-      @log_entries ||= log.split(separator)[1..-1].collect {|entry| GITLogEntry.new(entry, printer)}
-    end
-    
-    def report
-      formatted_log_entries.collect do |entry|
-        next unless entry.developer =~ /#{printer.developer}/ || printer.developer.nil?
-        entry.report
-      end.compact
+      @log_entries ||= log.gsub(/^commit \w{40}/, separator).split(separator)[1..-1].collect {|entry| GITLogEntry.new(entry, printer)}
     end
   end
   
@@ -99,8 +111,8 @@ class Printlog
       @printer = printer
     end
     
-    def report
-      "* #{"#{developer} "if use_developer?}[#{date.to_s}] - #{message}"
+    def report(with_date=true)
+      "* #{"#{developer} "if use_developer?}#{"[#{date.to_s}] - " if with_date}#{message}"
     end
     
     def use_developer?
@@ -111,7 +123,6 @@ class Printlog
   class SVNLogEntry < LogEntry
     def initialize(entry, printer)
       super
-      
       pieces = entry.split(" | ")
       @developer = pieces[1]
       @message = pieces.last.split("\n\n").last
@@ -131,7 +142,7 @@ class Printlog
     end
     
     def parse_developer(pieces)
-      while pieces.first !~ /Author/
+      if pieces.first !~ /Author\:/
         pieces.shift
       end
       pieces.shift.gsub("Author: ", "")

@@ -77,7 +77,7 @@ describe Printlog do
     end
     
     it "should have a static separator" do
-      @formatter.separator.should == "commit "
+      @formatter.separator.should == "?????"
     end
     
     it "should have entries for the given log" do
@@ -119,7 +119,6 @@ describe Printlog do
     before(:all) do
       @printer = Printlog.new("/Users/siannopollo/Developer/Projects/OpenSource/mail_fetcher", :limit => 6, :dates => "2/12/2008-2/14/2008")
       @formatter = @printer.formatter
-      @formatter.stub!(:log).and_return(svn_log)
     end
     
     it "should have a start date and end date" do
@@ -128,7 +127,26 @@ describe Printlog do
     end
     
     it "should only give back entries within a certain date range" do
+      @formatter.stub!(:log).and_return(svn_log)
+      @formatter.log_entries.size.should == 6
       @formatter.formatted_log_entries.size.should == 4
+    end
+  end
+  
+  describe "format" do
+    before(:all) do
+      @printer = Printlog.new("/Users/siannopollo/Developer/Projects/PrepChamps/prepchamps", :limit => 6, :developer => "steve", :dates => nil)
+      @formatter = @printer.formatter
+    end
+    
+    it "should default to plain" do
+      @printer.format.should == "plain"
+    end
+    
+    it "should do something different for an invoice format" do
+      @printer.stub!(:format).and_return("invoice")
+      @formatter.stub!(:log).and_return(git_log)
+      @printer.report.should include("02/28/2008 - ?? hours")
     end
   end
   
@@ -192,11 +210,12 @@ Date:   Thu Feb 28 16:09:48 2008 -0500
 
     Wrote unit tests for Order model
 
-commit 75c574556f1776174460b544538e8585e611c0d0
-Author: Matthew Bass <matt@anacreon.local>
-Date:   Thu Feb 28 15:46:53 2008 -0500
+commit 97177ae8624ca9e2f6c560132e4b8988b04e313d
+Merge: 8804813... af2c7fd...
+Author: Christopher Redinger <redinger@gmail.com>
+Date:   Wed Feb 28 11:00:29 2008 -0500
 
-    More test cleanup, added tests to boost coverage
+    Merge commit 'braid/svn/vendor/plugins/rspec-on-rails' into braid/track
 
 commit 3cdba16633e215a9e0226c7854ff193948dc9fa5
 Merge: aa27f11... 739a12a...
@@ -205,4 +224,8 @@ Date:   Thu Feb 28 15:09:05 2008 -0500
 
     Merge branch 'master' of git@192.168.50.17:prepchamps}
   end
+end
+
+def rputs(*thing)
+  puts *["<pre>", thing, "</pre>"].flatten
 end
