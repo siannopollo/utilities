@@ -132,25 +132,42 @@ describe Printlog do
       @formatter.formatted_log_entries.size.should == 4
     end
   end
-  
-  describe "format" do
-    before(:all) do
-      @printer = Printlog.new("/Users/siannopollo/Developer/Projects/PrepChamps/prepchamps", :limit => 6, :developer => "steve", :dates => nil)
-      @formatter = @printer.formatter
-    end
-    
-    it "should default to plain" do
-      @printer.format.should == "plain"
-    end
-    
-    it "should do something different for an invoice format" do
-      @printer.stub!(:format).and_return("invoice")
-      @formatter.stub!(:log).and_return(git_log)
-      @printer.report.should include("02/28/2008 - ?? hours")
-    end
+end
+
+describe Printlog, "format" do
+  before do
+    @printer = Printlog.new("/Users/siannopollo/Developer/Projects/PrepChamps/prepchamps", :limit => 6, :developer => "steve", :dates => nil)
+    @formatter = @printer.formatter
+    @formatter.stub!(:log).and_return(git_log)
   end
   
-  def svn_log
+  it "should default to plain" do
+    @printer.format.should == "plain"
+  end
+  
+  it "should do something different for an invoice format" do
+    @printer.stub!(:format).and_return("invoice")
+    @printer.report.should include("02/28/2008 - ?? hours")
+  end
+  
+  it "should have a tabular invoice format" do
+    @printer.stub!(:format).and_return("tabular_invoice")
+    @printer.report.should include(
+      "| 2008-02-28 | Merge branch 'master' of git@192.168.50.17:prepchamps                          |           |            |\n"
+    )
+    @printer.report.should include(
+      "|            | spec/models/user_spec.rb                                                       |           |            |\n"
+    )
+    @printer.report.should include(
+      "| 2008-02-28 | improved deploy script to be able to allow all developers to add their public  |           |            |\n"
+    )
+    @printer.report.should include(
+      "|            | keys to .ssh/authorized_keys so no passwords are needed when deploying         |           |            |\n"
+    )
+  end
+end
+  
+def svn_log
 %{------------------------------------------------------------------------
 r6 | siannopollo | 2008-02-15 19:37:07 -0500 (Fri, 15 Feb 2008) | 1 line
 
@@ -163,6 +180,7 @@ finally how i want it
 r4 | siannopollo | 2008-02-14 19:30:50 -0500 (Fri, 15 Feb 2008) | 1 line
 
 getting rid of git
+some extra interesting commit message that will take up a significantly large portion of text
 ------------------------------------------------------------------------
 r3 | siannopollo | 2008-02-14 19:28:05 -0500 (Fri, 15 Feb 2008) | 1 line
 
@@ -178,9 +196,9 @@ r1 | siannopollo | 2008-02-12 19:19:34 -0500 (Fri, 15 Feb 2008) | 1 line
 setting up directories
 ------------------------------------------------------------------------
 }
-  end
-  
-  def git_log
+end
+
+def git_log
 %{commit 37b612ba40f60a73ad2d13784a114dd02fb3c27c
 Merge: 2da5c16... 5dd6d74...
 Author: steve <siannopollo@macBook.local>
@@ -196,7 +214,7 @@ commit 2da5c16ce79f59abeaa1899c0da1171ac0afee24
 Author: steve <siannopollo@macBook.local>
 Date:   Thu Feb 28 16:54:35 2008 -0500
 
-    Users must activate their account before they can use it
+    improved deploy script to be able to allow all developers to add their public keys to .ssh/authorized_keys so no passwords are needed when deploying
 
 commit 5dd6d7420f0d825d81837c1692d180b57d513f1b
 Author: Matthew Bass <matt@anacreon.local>
@@ -223,7 +241,22 @@ Author: steve <siannopollo@macBook.local>
 Date:   Thu Feb 28 15:09:05 2008 -0500
 
     Merge branch 'master' of git@192.168.50.17:prepchamps}
-  end
+end
+
+def tabular_output
+%{    Date        Description                                                                      Time       Total
+------------------------------------------------------------------------------------------------------------------------
+| 02/15/2008 | modified README                                                                |           |            |
+| 02/15/2008 | finally how i want it                                                          |           |            |
+| 02/15/2008 | getting rid of git                                                             |           |            |
+| 02/15/2008 | some extra interesting commit message that will take                           |           |            |
+|            | up a significantly large portion of text                                       |           |            |
+| 02/15/2008 | ignoring stuff                                                                 |           |            |
+| 02/15/2008 | Initial import                                                                 |           |            |
+| 02/15/2008 | setting up directories                                                         |           |            |
+------------------------------------------------------------------------------------------------------------------------
+                                                                                     TOTALS:
+}
 end
 
 def rputs(*thing)

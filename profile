@@ -10,6 +10,11 @@ do
         continue
       fi
       
+      if [[ "$dir" =~ '.scpt' ]]
+      then
+        continue
+      fi
+      
       alias cd$dir="cd ~/Developer/Projects/$bigdir/$dir"
       alias m$dir="cd$dir && test -e /Users/`whoami`/Developer/Projects/$bigdir/$dir.tmproj && pwd | xargs osascript ~/bin/mate_project.scpt || mate ."
       alias s$dir="cd$dir && ss"
@@ -37,4 +42,4 @@ do
   alias s${var:0:1}="script/$var"
 done
 
-alias umember_hub="cdmember_hub && osascript update_project"
+alias umember_hub="cdmember_hub && osascript ../update_project.scpt"

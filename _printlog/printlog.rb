@@ -2,7 +2,7 @@ require "date"
 require "time"
 
 class Printlog
-  DEFAULTS = {:limit => 15, :developer => nil, :dates => nil, :format => "plain"}
+  DEFAULTS = {:limit => 15, :developer => nil, :dates => nil, :format => "plain", :rate => 45}
   attr_reader :directory, :limit, :developer, :formatter, :report, :dates, :format
   
   def initialize(directory, options={})
@@ -47,7 +47,7 @@ class Printlog
         log_entries.select {|entry| printer.start_date <= entry.date && entry.date <= printer.end_date}
       
       developer_entries = printer.developer.nil? ? log_entries :
-        log_entries.select {|entry| entry.developer =~ /#{printer.developer}/}
+        log_entries.select {|entry| entry.developer =~ %r{#{printer.developer}}}
       
       dated_entries & developer_entries
     end
@@ -56,13 +56,12 @@ class Printlog
       if format == "plain"
         formatted_log_entries.collect {|entry| entry.report}.compact
       else
-        invoice_report(formatted_log_entries)
+        raise "To create an invoice, you must provide a developer" if printer.developer.nil?
+        instance_eval "#{format}_report(formatted_log_entries)"
       end
     end
     
     def invoice_report(entries)
-      raise "To create an invoice, you must provide a developer" if printer.developer.nil?
-      
       output, dates = "", entries.collect {|e| e.report.scan(/\[(.*?)\]/).last}.flatten.uniq
       dates.each do |date|
         output << "#{Time.parse(date).strftime("%m/%d/%Y")} - ?? hours\n"
@@ -73,7 +72,50 @@ class Printlog
         end
         output << "\n"
       end
+      output << %{Total hours worked: ?? hours\nPay Rate: ?? per hour\n\nTotal Due: ??\n\nThanks!\n\nSteve Iannopollo\n3121C Aileen Dr\nRaleigh, NC 27606}
       output
+    end
+    
+    def tabular_invoice_report(entries)
+      output, horizontal_separator  = "    Date        Description" + (" "*70) + "Time       Total\n", ("-" * 120) + "\n"
+      output << horizontal_separator
+      entries.each do |entry|
+        time, total = "|           ", "|            |\n"
+        formatted_date = "| " + entry.date.to_s + " |"
+        formatted_message = format_message(entry.message, time, total)
+        output << (formatted_date + formatted_message)
+      end
+      output << horizontal_separator
+      output << " "*85 + "TOTALS:\n"
+      output
+    end
+    
+    def format_message(message, time, total)
+      pieces = message.split("\n")
+      
+      lines = pieces.collect do |old_line|
+        words, new_lines = old_line.split, []
+        while !words.empty?
+          collector = [" "]
+          while (collector.join(" ") + "#{words.first} ").length < 80 && !words.empty?
+            collector << words.shift
+          end
+          collector.join(" ").ljust(80) + "\n"
+          new_lines << collector
+        end
+        new_lines.flatten
+      end
+      
+      lines = lines.join(" ").gsub("  ", "\n ").sub("\n ", " ").split("\n").collect {|l| l.sub("  ", " ").ljust(80)}
+      first_line = lines.shift
+      first_line << (time + total)
+      return first_line if lines.size == 0
+      
+      date_place_holder = "|            |"
+      new_lines = first_line + lines.collect do |line|
+        date_place_holder + line + time + total
+      end.join
+      return new_lines
     end
   end
   
@@ -150,8 +192,9 @@ class Printlog
     
     def parse_message(full_message)
       full_message.inject([]) do |output, line|
-        line =~ /^\s{4}.+/ ? (output << line.gsub(/\s{4}/, "")) : output
-      end.join("\n") + "\n"
+        line =~ /^\s{4}.+/ ? (output << line.gsub(/\s{4}/, "")) : (output << line)
+        output
+      end.join("\n").sub("\n", "").gsub("\n\n", "\n") + "\n"
     end
   end
 end
