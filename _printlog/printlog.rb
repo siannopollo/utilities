@@ -84,8 +84,8 @@ class Printlog
         formatted_date = "| " + entry.date.to_s + " |"
         formatted_message = format_message(entry.message, time, total)
         output << (formatted_date + formatted_message)
+        output << horizontal_separator
       end
-      output << horizontal_separator
       output << " "*85 + "TOTALS:\n"
       output
     end
