@@ -9,5 +9,7 @@ options = ARGV.inject({}) do |hash, option|
 end
 
 stdout = options.delete(:stdout)
-printer = Printlog.new(`pwd`, options)
-stdout ? puts(printer.report) : `echo "#{printer.report}" | mate -a`
+report = options[:convert].nil? ?
+  Printlog.new(`pwd`, options).report :
+  Printlog::Converter.new(File.read(options[:convert])).report(options[:format])
+stdout ? puts(report) : `echo "#{report}" | mate -a`

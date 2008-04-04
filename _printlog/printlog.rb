@@ -1,5 +1,6 @@
 require "date"
 require "time"
+require "ostruct"
 
 class Printlog
   DEFAULTS = {:limit => 15, :developer => nil, :dates => nil, :format => "plain", :rate => 45}
@@ -62,8 +63,8 @@ class Printlog
     end
     
     def invoice_report(entries)
-      output, dates = "", entries.collect {|e| e.report.scan(/\[(.*?)\]/).last}.flatten.uniq
-      dates.each do |date|
+      output = ""
+      dates_for_entries(entries).each do |date|
         output << "#{Time.parse(date).strftime("%m/%d/%Y")} - ?? hours\n"
         dated_entries = entries.select {|e| e.date.to_s == date}
         dated_entries.each do |entry|
@@ -77,14 +78,22 @@ class Printlog
     end
     
     def tabular_invoice_report(entries)
-      output, horizontal_separator  = "    Date        Description" + (" "*70) + "Time       Total\n", ("-" * 120) + "\n"
+      output, horizontal_separator  = "    Date        Description" + (" "*70) + "Time         Total\n", ("-" * 120) + "\n"
       output << horizontal_separator
-      entries.each do |entry|
-        time, total = "|           ", "|            |\n"
-        formatted_date = "| " + entry.date.to_s + " |"
-        formatted_message = format_message(entry.message, time, total)
-        output << (formatted_date + formatted_message)
-        output << horizontal_separator
+      dates_for_entries(entries).each do |date|
+        dated_entries = entries.select {|e| e.date.to_s == date}
+        output <<  "| " + date.to_s + " |"
+        dated_entries.each_with_index do |entry, i|
+          date_place_holder, time, total = "|            |", "|           ", "|            |\n"
+          formatted_message = format_message(entry.message, time, total)
+          output << date_place_holder unless i == 0
+          output << formatted_message
+          if entry == dated_entries.last
+            output << horizontal_separator
+          else
+            output << date_place_holder + ("-" * 80) + time + total
+          end
+        end
       end
       output << " "*85 + "TOTALS:\n"
       output
@@ -116,6 +125,10 @@ class Printlog
         date_place_holder + line + time + total
       end.join
       return new_lines
+    end
+    
+    def dates_for_entries(entries)
+      entries.collect {|e| e.report.scan(/\[(.*?)\]/).last}.flatten.uniq
     end
   end
   
@@ -154,11 +167,15 @@ class Printlog
     end
     
     def report(with_date=true)
-      "* #{"#{developer} "if use_developer?}#{"[#{date.to_s}] - " if with_date}#{message}"
+      "* #{"#{developer} "if use_developer?}#{"[#{date.to_s}] - " if with_date}#{message}#{"\n" unless message =~ /\n$/}"
     end
     
     def use_developer?
       printer.developer.nil?
+    end
+    
+    def ==(other)
+      self.object_id == other.object_id
     end
   end
   
@@ -195,6 +212,47 @@ class Printlog
         line =~ /^\s{4}.+/ ? (output << line.gsub(/\s{4}/, "")) : (output << line)
         output
       end.join("\n").sub("\n", "").gsub("\n\n", "\n") + "\n"
+    end
+  end
+  
+  # Utility class to convert default format stuff into another format
+  class Converter
+    attr_reader :text, :entries
+    def initialize(text)
+      @text = text
+      @entries = extract_entries!
+    end
+    
+    def extract_entries!
+      text.split("* ").collect do |entry|
+        next if entry.empty?
+        split_entry = entry.split(" - ")
+        other_stuff = split_entry.shift
+        message = split_entry.join
+        developer = (other_stuff =~ /^\[/ ? nil : other_stuff.split(" ").first)
+        date = other_stuff.sub(/.*?\[(.*?)\]/) {$1}
+        build_entry(entry, message, developer, date)
+      end.compact
+    end
+    
+    def build_entry(entry, message, developer, date)
+      built_entry = OpenStruct.new(:message => message, :developer => developer, :date => date)
+      class << built_entry
+        def report(with_date=true)
+          %{* #{"[#{date.to_s}] - " if with_date}#{message}}
+        end
+        
+        def ==(other)
+          self.object_id == other.object_id
+        end
+      end
+      built_entry
+    end
+    
+    def report(format)
+      formatter = Formatter.new(OpenStruct.new(:developer => nil))
+      format ||= :tabular_invoice
+      formatter.send :"#{format}_report", entries
     end
   end
 end

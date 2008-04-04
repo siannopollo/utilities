@@ -152,21 +152,80 @@ describe Printlog, "format" do
   
   it "should have a tabular invoice format" do
     @printer.stub!(:format).and_return("tabular_invoice")
-    @printer.report.should include(
-      "| 2008-02-28 | Merge branch 'master' of git@192.168.50.17:prepchamps                          |           |            |\n"
-    )
-    @printer.report.should include(
-      "|            | spec/models/user_spec.rb                                                       |           |            |\n"
-    )
-    @printer.report.should include(
-      "| 2008-02-28 | improved deploy script to be able to allow all developers to add their public  |           |            |\n"
-    )
-    @printer.report.should include(
-      "|            | keys to .ssh/authorized_keys so no passwords are needed when deploying         |           |            |\n"
-    )
+    @printer.report.should == tabular_output
   end
 end
+
+describe Printlog, "extras" do
+  before do
+    @converter = Printlog::Converter.new(default_format_report)
+  end
   
+  it "should be able to convert default format to tabular invoice format" do
+    @converter.report(:tabular_invoice).should == default_to_tabular_format
+  end
+  
+  it "should be able to convert default format to regular invoice format" do
+    @converter.report(:invoice).should == default_to_invoice_format
+  end
+end
+
+def default_format_report
+%{* adamw [2008-04-03] - Shaved a few seconds off test run by avoiding rendering of dashboard for every login
+* adamw [2008-04-03] - Updated all plugins, fixed problem where config.gem with facets/htmlentities (only for tarantula, which runs forever) caused app to not run
+* adamw [2008-04-03] - Pistonizing rspec
+* adamw [2008-04-03] - Pistonizing rspec
+* adamw [2008-04-02] - We had to unpack haml into our app for now since there was a change to how template handlers are registered with ActionView.
+BUG: Inviting to hub should not re-invite to that hub, but it should still allow others to invite to their hub. Be careful, and pair with someone, cause there are probably issues with 'who from', too.
+}
+end
+
+def default_to_tabular_format
+%{    Date        Description                                                                      Time         Total
+------------------------------------------------------------------------------------------------------------------------
+| 2008-04-03 | Shaved a few seconds off test run by avoiding rendering of dashboard for       |           |            |
+|            | every login                                                                    |           |            |
+|            |--------------------------------------------------------------------------------|           |            |
+|            | Updated all plugins, fixed problem where config.gem with facets/htmlentities   |           |            |
+|            | (only for tarantula, which runs forever) caused app to not run                 |           |            |
+|            |--------------------------------------------------------------------------------|           |            |
+|            | Pistonizing rspec                                                              |           |            |
+|            |--------------------------------------------------------------------------------|           |            |
+|            | Pistonizing rspec                                                              |           |            |
+------------------------------------------------------------------------------------------------------------------------
+| 2008-04-02 | We had to unpack haml into our app for now since there was a change to how     |           |            |
+|            | template handlers are registered with ActionView.                              |           |            |
+|            | BUG: Inviting to hub should not re-invite to that hub, but it should still     |           |            |
+|            | allow others to invite to their hub. Be careful, and pair with someone, cause  |           |            |
+|            | there are probably issues with 'who from', too.                                |           |            |
+------------------------------------------------------------------------------------------------------------------------
+                                                                                     TOTALS:
+}
+end
+
+def default_to_invoice_format
+%{04/03/2008 - ?? hours
+  * Shaved a few seconds off test run by avoiding rendering of dashboard for every login
+  * Updated all plugins, fixed problem where config.gem with facets/htmlentities (only for tarantula, which runs forever) caused app to not run
+  * Pistonizing rspec
+  * Pistonizing rspec
+
+04/02/2008 - ?? hours
+  * We had to unpack haml into our app for now since there was a change to how template handlers are registered with ActionView.
+BUG: Inviting to hub should not re-invite to that hub, but it should still allow others to invite to their hub. Be careful, and pair with someone, cause there are probably issues with 'who from', too.
+
+Total hours worked: ?? hours
+Pay Rate: ?? per hour
+
+Total Due: ??
+
+Thanks!
+
+Steve Iannopollo
+3121C Aileen Dr
+Raleigh, NC 27606}
+end
+
 def svn_log
 %{------------------------------------------------------------------------
 r6 | siannopollo | 2008-02-15 19:37:07 -0500 (Fri, 15 Feb 2008) | 1 line
@@ -244,16 +303,16 @@ Date:   Thu Feb 28 15:09:05 2008 -0500
 end
 
 def tabular_output
-%{    Date        Description                                                                      Time       Total
+%{    Date        Description                                                                      Time         Total
 ------------------------------------------------------------------------------------------------------------------------
-| 02/15/2008 | modified README                                                                |           |            |
-| 02/15/2008 | finally how i want it                                                          |           |            |
-| 02/15/2008 | getting rid of git                                                             |           |            |
-| 02/15/2008 | some extra interesting commit message that will take                           |           |            |
-|            | up a significantly large portion of text                                       |           |            |
-| 02/15/2008 | ignoring stuff                                                                 |           |            |
-| 02/15/2008 | Initial import                                                                 |           |            |
-| 02/15/2008 | setting up directories                                                         |           |            |
+| 2008-02-28 | Merge branch 'master' of git@192.168.50.17:prepchamps                          |           |            |
+|            | Conflicts:                                                                     |           |            |
+|            | spec/models/user_spec.rb                                                       |           |            |
+|            |--------------------------------------------------------------------------------|           |            |
+|            | improved deploy script to be able to allow all developers to add their public  |           |            |
+|            | keys to .ssh/authorized_keys so no passwords are needed when deploying         |           |            |
+|            |--------------------------------------------------------------------------------|           |            |
+|            | Merge branch 'master' of git@192.168.50.17:prepchamps                          |           |            |
 ------------------------------------------------------------------------------------------------------------------------
                                                                                      TOTALS:
 }
