@@ -2,14 +2,21 @@
 require File.dirname(__FILE__) + "/_printlog/printlog"
 require "tempfile"
 
-options = ARGV.inject({}) do |hash, option|
-  key, value = option.split("=").collect {|thing| thing.lstrip.rstrip}
-  hash[key.to_sym] = value
+switches = {
+  :"-d" => :developer, :"-f" => :format, :"-l" => :limit,
+  :"-d" => :dates, :"-v" => :verbose
+}
+
+options = []
+options << [ARGV.shift, ARGV.shift] while !ARGV.empty?
+  
+print_options = options.inject({}) do |hash, k, v|
+  hash[switches[k]] = v
   hash
 end
 
-stdout = options.delete(:stdout)
-report = options[:convert].nil? ?
-  Printlog.new(`pwd`, options).report :
-  Printlog::Converter.new(File.read(options[:convert])).report(options[:format])
-stdout ? puts(report) : `echo "#{report}" | mate -a`
+verbose = print_options.delete(:verbose)
+report = print_options[:convert].nil? ?
+  Printlog.new(`pwd`, print_options).report :
+  Printlog::Converter.new(File.read(print_options[:convert])).report(print_options[:format])
+verbose ? puts(report) : `echo "#{report}" | mate -a`

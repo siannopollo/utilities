@@ -17,7 +17,7 @@ do
       fi
       
       alias cd$dir="cd ~/Developer/Projects/$bigdir/$dir"
-      alias m$dir="cd$dir && test -e /Users/`whoami`/Developer/Projects/$bigdir/$dir.tmproj && pwd | xargs osascript ~/bin/mate_project.scpt || mate ."
+      alias m$dir="cd$dir && test -e /Users/`whoami`/Developer/Projects/$bigdir/$dir/$dir.tmproj && pwd | xargs osascript ~/bin/mate_project.scpt $dir || mate ."
       alias s$dir="cd$dir && ss"
       alias g$dir="~/bin/growl/scm_growl $dir"
       alias git$dir="~/bin/growl/scm_growl.rb /Users/`whoami`/Developer/Projects/$bigdir/$dir"
