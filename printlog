@@ -4,18 +4,15 @@ require "tempfile"
 
 switches = {
   :"-d" => :developer, :"-f" => :format, :"-l" => :limit,
-  :"-d" => :dates, :"-v" => :verbose
+  :"-s" => :dates, :"-v" => :verbose, :"-c" => :convert
 }
 
-options = []
-options << [ARGV.shift, ARGV.shift] while !ARGV.empty?
-  
-print_options = options.inject({}) do |hash, k, v|
-  hash[switches[k]] = v
-  hash
-end
+print_options, options = {}, []
+verbose = ARGV.delete("-v")
 
-verbose = print_options.delete(:verbose)
+options << [ARGV.shift, ARGV.shift] while !ARGV.empty?
+options.each {|(k, v)| print_options[switches[k.to_sym]] = v}
+
 report = print_options[:convert].nil? ?
   Printlog.new(`pwd`, print_options).report :
   Printlog::Converter.new(File.read(print_options[:convert])).report(print_options[:format])
