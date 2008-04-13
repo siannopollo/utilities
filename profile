@@ -28,8 +28,8 @@ done
 alias localhost="open http://localhost:3000 -a 'Safari Webkit'"
 alias flocalhost="open http://localhost:3000 -a Firefox"
 alias slocalhost="open http://localhost:3000 -a Safari"
-alias addall="svn st | grep ? | cut -d' ' -f7 | xargs svn add"
-alias removeall="svn st | grep ? | cut -d' ' -f7 | xargs rm -Rf"
+alias addall="test -e .svn && (svn st | grep ? | cut -d' ' -f7 | xargs svn add) || git add ."
+alias removeall="test -e .svn && (svn st | grep ? | cut -d' ' -f7 | xargs rm -Rf) || (git status | grep deleted: | cut -d' ' -f 5 | xargs git rm)"
 alias dbm="rake db:migrate && rake db:test:prepare"
 alias dbfl="rake db:fixtures:load"
 alias dbr="rake db:rebuild"
@@ -38,7 +38,8 @@ do
   alias sql$var="mysqladmin -u root $var"
 done
 
-for var in "server" "generate" "console" "destroy" "plugin"
+alias ss="test -d ./script && script/server || serve"
+for var in "generate" "console" "destroy" "plugin"
 do
   alias s${var:0:1}="script/$var"
 done
