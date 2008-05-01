@@ -1,4 +1,9 @@
 #!/usr/bin/env ruby
+# Example usage in a directory with either a svn or git working directory
+#   
+#   printlog -l 300 -d stevei -f tabular_invoice -s 3/1/2008-3/31/2008 -v
+#   printlog -c ~/Desktop/regular_april_invoice.txt -f tabular_invoice
+#
 require File.dirname(__FILE__) + "/_printlog/printlog"
 require "tempfile"
 

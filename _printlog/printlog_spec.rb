@@ -31,7 +31,7 @@ describe Printlog do
     
     it "should have entries for the given log" do
       @formatter.formatted_log_entries.size.should == 6
-      @formatter.formatted_log_entries.first.should be_a_kind_of(Printlog::SVNLogEntry)
+      @formatter.formatted_log_entries.first.should be_a_kind_of(SVNLogEntry)
     end
     
     describe "entries" do
@@ -62,7 +62,6 @@ describe Printlog do
         @printer.report.should be_empty
       end
     end
-    
   end
   
   describe "git" do
@@ -82,7 +81,7 @@ describe Printlog do
     
     it "should have entries for the given log" do
       @formatter.formatted_log_entries.size.should == 6
-      @formatter.formatted_log_entries.first.should be_a_kind_of(Printlog::GITLogEntry)
+      @formatter.formatted_log_entries.first.should be_a_kind_of(GITLogEntry)
     end
     
     describe "entries" do
