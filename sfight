@@ -1,4 +1,22 @@
 #!/usr/bin/env ruby
+# Inspired by gfight, which lets you input any number of terms and goes to
+# google to see which term is the most popular in terms of number of times
+# searched. Sfight lets you input any number of developer names on a project
+# and see who has the most commits (because, obviously, whoever has the most
+# commits is doing the most amount of work on the project... right? :-).
+# 
+# In a directory that is linked to a subversion repository, do something
+# like the following:
+#   
+#   sfight siannopollo pablo fred billy_bob
+#   
+# and you end up with something like the following
+#   
+#   231 - billy_bob
+#   156 - siannopollo
+#   66 - pablo
+#   12 - fred
+#
 developers = ARGV.select {|arg| !arg.empty? && !arg.nil?}
 raise "You need at least two developers to fight" if developers.empty?
 
