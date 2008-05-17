@@ -6,19 +6,31 @@ complete -C "/opt/local/bin/gemedit --complete -e mate" gemedit
 for bigdir in $(ls ~/Developer/Projects/ | cut -d' ' -f7)
 do 
   for dir in $(ls ~/Developer/Projects/$bigdir)
-    do
-      if [[ "$dir" =~ '.tmproj' ]]
-      then
-        continue
-      fi
-      
-      alias cd$dir="cd ~/Developer/Projects/$bigdir/$dir"
-      alias m$dir="cd$dir && test -e /Users/`whoami`/Developer/Projects/$bigdir/$dir/$dir.tmproj && pwd | xargs osascript ~/bin/mate_project.scpt $dir || mate ."
-      alias s$dir="cd$dir && ss"
-      alias g$dir="~/bin/growl/scm_growl $dir"
-      alias git$dir="~/bin/growl/scm_growl.rb /Users/`whoami`/Developer/Projects/$bigdir/$dir"
-      alias o$dir="osascript ~/bin/open_project.scpt \"$dir\""
-    done
+  do
+    if [[ "$dir" =~ '.tmproj' ]]
+    then
+      continue
+    fi
+    
+    # Allows for placement of .sh files in directories where projects live so that
+    # we can strategically modify our aliases. If these are named the same as the
+    # project for which are trying to replace aliases, we can overwrite the other
+    # aliases since this gets run after the normal aliases for that project.
+    if [[ "$dir" =~ '.sh' ]]
+    then
+      cd "/Users/siannopollo/Developer/Projects/$bigdir"
+      . "$dir"
+      cd
+      continue
+    fi
+    
+    alias cd$dir="cd ~/Developer/Projects/$bigdir/$dir"
+    alias m$dir="cd$dir && test -e /Users/`whoami`/Developer/Projects/$bigdir/$dir/$dir.tmproj && pwd | xargs osascript ~/bin/mate_project.scpt $dir || mate ."
+    alias s$dir="cd$dir && ss"
+    alias g$dir="~/bin/growl/scm_growl $dir"
+    alias git$dir="~/bin/growl/scm_growl.rb /Users/`whoami`/Developer/Projects/$bigdir/$dir"
+    alias o$dir="osascript ~/bin/open_project.scpt \"$dir\""
+  done
 done
 
 alias localhost="open http://localhost:3000 -a 'Safari Webkit'"
