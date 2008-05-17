@@ -1,6 +1,7 @@
 export PATH="~/bin:/usr/local/bin:/usr/local/sbin:/opt/local/bin:/opt/local/var/db/dports/distfiles:/usr/local/mysql-standard-5.0.27-osx10.4-i686/bin:$PATH"
 export EDITOR="mate -w"
 export ARCHFLAGS="-arch i386"
+complete -C "/opt/local/bin/gemedit --complete -e mate" gemedit
 
 for bigdir in $(ls ~/Developer/Projects/ | cut -d' ' -f7)
 do 

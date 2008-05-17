@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>osascript &lt;&lt;-APPLESCRIPT
+  tell application "TextMate"
+    tell application "System Events"
+      tell process "TextMate" to keystroke "w" using {command down, control down}
+    end tell
+    -- do something here to open the current file properly 'open file "$TM_FILEPATH"'
+  end tell
+APPLESCRIPT</string>
+	<key>input</key>
+	<string>none</string>
+	<key>keyEquivalent</key>
+	<string>^@W</string>
+	<key>name</key>
+	<string>Close all but this file</string>
+	<key>output</key>
+	<string>discard</string>
+	<key>uuid</key>
+	<string>1C6D17E2-16CA-4F41-AD3C-BC1F18B64911</string>
+</dict>
+</plist>
