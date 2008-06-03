@@ -19,7 +19,7 @@ class Printlog
   end
   
   def scm
-    @scm ||= `test -d #{directory}/.git && echo git || echo svn`.gsub("\n", "")
+    @scm ||= `test -d #{directory}/.svn && echo svn || echo git`.gsub("\n", "")
   end
   
   def report

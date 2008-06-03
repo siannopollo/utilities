@@ -1,4 +1,3 @@
-ENV["RAILS_ENV"] = "test"
 require "spec"
 require File.dirname(__FILE__) + "/printlog.rb"
 
