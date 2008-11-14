@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env ruby
+javascript_spec_root = "#{ENV['TM_PROJECT_DIRECTORY']}/spec/javascripts"
+require "#{javascript_spec_root}/jsserve"
+JSSpecRunner.run(javascript_spec_root, ENV['TM_FILEPATH'], :html)</string>
+	<key>input</key>
+	<string>document</string>
+	<key>keyEquivalent</key>
+	<string>@r</string>
+	<key>name</key>
+	<string>Run Javascript Spec</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>scope</key>
+	<string>source.js, text.haml</string>
+	<key>uuid</key>
+	<string>812EB8F2-3CE7-434D-ACC9-78066EBB9916</string>
+</dict>
+</plist>
