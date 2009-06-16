@@ -1,4 +1,4 @@
-export PATH="~/bin:/usr/local/bin:/usr/local/sbin:/opt/local/bin:/opt/local/var/db/dports/distfiles:/usr/local/mysql-standard-5.0.27-osx10.4-i686/bin:$PATH"
+export PATH="~/bin:/usr/local/bin:/usr/local/sbin:/opt/local/bin:/opt/local/var/db/dports/distfiles:/usr/local/mysql/bin:$PATH"
 export EDITOR="mate -w"
 export ARCHFLAGS="-arch i386"
 complete -C "/opt/local/bin/gemedit --complete -e mate" gemedit
@@ -25,9 +25,9 @@ do
     fi
     
     alias cd$dir="cd ~/Developer/Projects/$bigdir/$dir"
-    alias m$dir="cd$dir && test -e /Users/`whoami`/Developer/Projects/$bigdir/$dir/$dir.tmproj && pwd | xargs osascript ~/bin/mate_project.scpt $dir || mate ."
+    alias m$dir="cd$dir && test -e $dir.tmproj && open $dir.tmproj || (test -e $dir.xcodeproj && open $dir.xcodeproj || mate .)"
     alias s$dir="cd$dir && ss"
-    alias g$dir="~/bin/growl/scm_growl $dir"
+    alias g$dir="open /Applications/TimerApp.app"
     alias git$dir="~/bin/growl/scm_growl.rb /Users/`whoami`/Developer/Projects/$bigdir/$dir"
     alias o$dir="osascript ~/bin/open_project.scpt \"$dir\""
   done
