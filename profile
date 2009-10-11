@@ -1,7 +1,7 @@
 if [ -s ~/.rvm/scripts/rvm ] ; then source ~/.rvm/scripts/rvm ; fi
-export PATH="~/bin:/usr/local/bin:/usr/local/sbin:/opt/local/bin:/opt/local/var/db/dports/distfiles:/usr/local/mysql/bin:$PATH"
+export PATH="~/bin:/usr/local/bin:/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/opt/local/var/db/dports/distfiles:/usr/local/mysql/bin:$PATH"
 export EDITOR="mate -w"
-export ARCHFLAGS="-arch i386"
+export ARCHFLAGS="-arch x86_64"
 complete -C "/opt/local/bin/gemedit --complete -e mate" gemedit
 
 for bigdir in $(ls ~/Developer/Projects/ | cut -d' ' -f7)
