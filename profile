@@ -1,5 +1,5 @@
 if [ -s ~/.rvm/scripts/rvm ] ; then source ~/.rvm/scripts/rvm ; fi
-export PATH="~/bin:/usr/local/bin:/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/opt/local/var/db/dports/distfiles:/usr/local/mysql/bin:$PATH"
+export PATH="~/bin:/usr/local/bin:/usr/local/libexec/git-core:/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/opt/local/var/db/dports/distfiles:/usr/local/mysql/bin:$PATH"
 export EDITOR="mate -w"
 export ARCHFLAGS="-arch x86_64"
 complete -C "/opt/local/bin/gemedit --complete -e mate" gemedit
@@ -28,8 +28,9 @@ do
     alias cd$dir="cd ~/Developer/Projects/$bigdir/$dir"
     alias m$dir="cd$dir && test -e $dir.tmproj && open $dir.tmproj || (test -e $dir.xcodeproj && open $dir.xcodeproj || mate .)"
     alias s$dir="cd$dir && ss"
-    alias g$dir="open /Applications/TimerApp.app"
+    alias g$dir="open http://timer.iannopollo.com -a Safari"
     alias git$dir="~/bin/growl/scm_growl.rb /Users/`whoami`/Developer/Projects/$bigdir/$dir"
+    alias b$dir="open http://$dir.local -a Safari"
     alias o$dir="osascript ~/bin/open_project.scpt \"$dir\""
   done
 done
