@@ -28,7 +28,7 @@ do
     alias cd$dir="cd ~/Developer/Projects/$bigdir/$dir"
     alias m$dir="cd$dir && test -e $dir.tmproj && open $dir.tmproj || (test -e $dir.xcodeproj && open $dir.xcodeproj || mate .)"
     alias s$dir="cd$dir && ss"
-    alias g$dir="open http://timer.iannopollo.com -a Safari"
+    alias g$dir="open http://timer.iannopollo.com -a Safari && cd$dir"
     alias git$dir="~/bin/growl/scm_growl.rb /Users/`whoami`/Developer/Projects/$bigdir/$dir"
     alias b$dir="open http://$dir.local -a Safari"
     alias o$dir="osascript ~/bin/open_project.scpt \"$dir\""
