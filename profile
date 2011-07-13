@@ -1,11 +1,17 @@
 if [ -s ~/.rvm/scripts/rvm ] ; then source ~/.rvm/scripts/rvm ; fi
-export PATH="~/bin:/usr/local/bin:/usr/local/libexec/git-core:/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/opt/local/var/db/dports/distfiles:/usr/local/mysql/bin:$PATH"
+export PATH="~/bin:/usr/local/bin:/usr/local/libexec/git-core:/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/opt/local/var/db/dports/distfiles:/usr/local/mysql/bin:/usr/local/texlive/2009/bin/universal-darwin:$PATH"
 export EDITOR="mate -w"
 export ARCHFLAGS="-arch x86_64"
+
 complete -C "/opt/local/bin/gemedit --complete -e mate" gemedit
 
 for bigdir in $(ls ~/Developer/Projects/ | cut -d' ' -f7)
 do 
+  if [[ "$bigdir" =~ '.zip' ]]
+  then
+    continue
+  fi
+  
   for dir in $(ls ~/Developer/Projects/$bigdir)
   do
     if [[ "$dir" =~ '.tmproj' ]]
@@ -32,6 +38,7 @@ do
     alias git$dir="~/bin/growl/scm_growl.rb /Users/`whoami`/Developer/Projects/$bigdir/$dir"
     alias b$dir="open http://$dir.local -a Safari"
     alias o$dir="osascript ~/bin/open_project.scpt \"$dir\""
+    alias l$dir="cd$dir && for f in log/*.log; do echo '' > \$f; done"
   done
 done
 
@@ -39,7 +46,7 @@ alias localhost="open http://localhost:3000 -a Safari"
 alias flocalhost="open http://localhost:3000 -a Firefox"
 alias addall="test -e .svn && (svn st | grep ? | cut -d' ' -f7 | xargs svn add) || (test -d .git && git add . || (currentdir=$PWD && cd .. && git add . && cd $currentdir))"
 alias removeall="test -e .svn && (svn st | grep ? | cut -d' ' -f7 | xargs rm -Rf) || (git status | grep deleted: | cut -d' ' -f 5 | xargs git rm)"
-alias dbm="rake db:migrate && rake db:test:prepare"
+alias dbm="rake db:migrate && rake db:test:clone"
 alias dbfl="rake db:fixtures:load"
 alias dbr="rake db:rebuild"
 for var in "drop" "create"
@@ -52,3 +59,7 @@ for var in "generate" "console" "destroy" "plugin"
 do
   alias s${var:0:1}="script/$var"
 done
+
+if [[ -s "$HOME/.rvm/scripts/rvm" ]]  ; then source "$HOME/.rvm/scripts/rvm" ; fi
+
+alias pandora="pianobar"
