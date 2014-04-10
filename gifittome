@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+movie = File.expand_path ARGV[0]
+filename = File.basename movie, '.mov'
+
+ffmpeg_path = `which ffmpeg`.strip
+gifsicle_path = `which gifsicle`.strip
+
+if ffmpeg_path.empty?
+  puts 'Please install ffmpeg before continuing (brew install ffmpeg)'
+  exit 1
+end
+
+if gifsicle_path.empty?
+  puts 'Please install gifsicle before continuing (brew install gifsicle)'
+  exit 1
+end
+
+directory = File.dirname movie
+png_dir = "#{directory}/.pngs"
+gif_dir = "#{directory}/.gifs"
+
+FileUtils.rm_rf png_dir
+FileUtils.rm_rf gif_dir
+
+FileUtils.mkdir png_dir
+`ffmpeg -i #{movie} -r 10 #{png_dir}/out%04d.png &> /dev/null`
+
+FileUtils.mkdir gif_dir
+`sips -s format gif #{png_dir}/*.png --out #{gif_dir} &> /dev/null`
+
+Dir.chdir(gif_dir) do
+  gif = filename + '.gif'
+  `gifsicle *.gif -i --no-warnings --optimize -O3 --loopcount -o #{directory}/#{gif}`
+end
+
+FileUtils.rm_rf png_dir
+FileUtils.rm_rf gif_dir
+
+exit 0

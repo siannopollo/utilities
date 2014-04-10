@@ -34,7 +34,7 @@ do
     alias cd$dir="cd ~/Developer/Projects/$bigdir/$dir"
     alias m$dir="cd$dir && test -e $dir.tmproj && open $dir.tmproj || (test -e $dir.xcodeproj && open $dir.xcodeproj || mate .)"
     alias s$dir="cd$dir && ss"
-    alias g$dir="open http://timer.iannopollo.com -a Safari && cd$dir"
+    alias g$dir="open -a Tick.app && cd$dir"
     alias git$dir="~/bin/growl/scm_growl.rb /Users/`whoami`/Developer/Projects/$bigdir/$dir"
     alias b$dir="open http://$dir.local -a Safari"
     alias o$dir="osascript ~/bin/open_project.scpt \"$dir\""
@@ -44,14 +44,14 @@ done
 
 alias localhost="open http://localhost:3000 -a Safari"
 alias flocalhost="open http://localhost:3000 -a Firefox"
-alias addall="test -e .svn && (svn st | grep ? | cut -d' ' -f7 | xargs svn add) || (test -d .git && git add . || (currentdir=$PWD && cd .. && git add . && cd $currentdir))"
+alias addall="test -e .svn && (svn st | grep ? | cut -d' ' -f7 | xargs svn add) || (test -d .git && git add -A . || (currentdir=$PWD && cd .. && git add -A . && cd $currentdir))"
 alias removeall="test -e .svn && (svn st | grep ? | cut -d' ' -f7 | xargs rm -Rf) || (git status | grep deleted: | cut -d' ' -f 5 | xargs git rm)"
-alias dbm="rake db:migrate && rake db:test:clone"
+alias dbm="rake db:migrate db:test:clone"
 alias dbfl="rake db:fixtures:load"
 alias dbr="rake db:rebuild"
 for var in "drop" "create"
 do
-  alias sql$var="mysqladmin -u root $var"
+  alias sql${var}db="mysqladmin -u root $var"
 done
 
 alias ss="test -d ./script && script/server || serve"
@@ -63,3 +63,10 @@ done
 if [[ -s "$HOME/.rvm/scripts/rvm" ]]  ; then source "$HOME/.rvm/scripts/rvm" ; fi
 
 alias pandora="pianobar"
+alias pow-me="powpath=\$PWD;cd ~/.pow;ln -s \$powpath;cd \$powpath;unset powpath"
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
+
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  . $(brew --prefix)/etc/bash_completion
+fi
